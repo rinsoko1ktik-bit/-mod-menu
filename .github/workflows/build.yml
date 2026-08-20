@@ -1,10 +1,9 @@
-name: Build Зуки menu
+name: Build Зуки Story Menu
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -14,44 +13,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            clang \
-            lld \
-            cmake \
-            ninja-build \
-            python3 \
-            python3-pip \
-            git \
-            wget \
-            unzip
+          sudo apt-get install -y cmake ninja-build clang lld git
 
-      - name: Download OpenOrbis Toolchain
+      - name: Download OpenOrbis
         run: |
-          git clone --depth 1 \
-            https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git \
-            "$HOME/OpenOrbis"
-
-      - name: Set OpenOrbis environment
-        run: |
-          echo "OO_PS4_TOOLCHAIN=$HOME/OpenOrbis" >> "$GITHUB_ENV"
-          echo "$HOME/OpenOrbis/bin" >> "$GITHUB_PATH"
+          git clone --depth 1 https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git "$HOME/OpenOrbis"
 
       - name: Configure
-        run: |
-          cmake -S . \
-            -B build \
-            -G Ninja
+        run: cmake -S . -B build -G Ninja
 
       - name: Build
-        run: |
-          cmake --build build --verbose
+        run: cmake --build build --verbose
 
-      - name: Upload build
+      - name: Save build
         uses: actions/upload-artifact@v4
         with:
           name: ZokiiStoryMenu-build
-          path: |
-            build/**
+          path: build/
