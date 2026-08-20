@@ -5,6 +5,6 @@ project(ZokiiStoryMenu)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(ЗукиStoryMenu
+add_executable(ZokiiStoryMenu
     src/main.cpp
 )
