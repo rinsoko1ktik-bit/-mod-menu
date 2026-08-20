@@ -26,6 +26,7 @@ jobs:
       - name: Check OpenOrbis
         run: |
           ls -la OpenOrbis
+          find OpenOrbis -maxdepth 3 -type d -iname "*sdk*" -print
           echo "OpenOrbis downloaded successfully"
 
       - name: Configure CMake
