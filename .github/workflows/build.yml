@@ -1,34 +1,33 @@
-name: Build Зуки Story Menu
+name: Build ZokiiStoryMenu
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install build tools
+      - name: Install CMake and Ninja
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang lld git
+          sudo apt-get install -y cmake ninja-build
 
-      - name: Download OpenOrbis
+      - name: Configure CMake
         run: |
-          git clone --depth 1 https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git "$HOME/OpenOrbis"
-
-      - name: Configure
-        run: cmake -S . -B build -G Ninja
+          cmake -S . -B build -G Ninja
 
       - name: Build
-        run: cmake --build build --verbose
+        run: |
+          cmake --build build
 
-      - name: Save build
+      - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: ZokiiStoryMenu-build
