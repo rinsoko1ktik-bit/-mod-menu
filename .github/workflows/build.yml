@@ -1,0 +1,57 @@
+name: Build Зуки menu
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            lld \
+            cmake \
+            ninja-build \
+            python3 \
+            python3-pip \
+            git \
+            wget \
+            unzip
+
+      - name: Download OpenOrbis Toolchain
+        run: |
+          git clone --depth 1 \
+            https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git \
+            "$HOME/OpenOrbis"
+
+      - name: Set OpenOrbis environment
+        run: |
+          echo "OO_PS4_TOOLCHAIN=$HOME/OpenOrbis" >> "$GITHUB_ENV"
+          echo "$HOME/OpenOrbis/bin" >> "$GITHUB_PATH"
+
+      - name: Configure
+        run: |
+          cmake -S . \
+            -B build \
+            -G Ninja
+
+      - name: Build
+        run: |
+          cmake --build build --verbose
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZokiiStoryMenu-build
+          path: |
+            build/**
