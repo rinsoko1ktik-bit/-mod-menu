@@ -1,14 +1,14 @@
-name: Build ZokiiStoryMenu
+name: Build Zokii Story Menu
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -18,40 +18,38 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            clang \
+            lld \
             cmake \
             ninja-build \
             git \
-            clang \
-            lld \
-            make
+            wget \
+            unzip
 
-      - name: Clone OpenOrbis Toolchain
+      - name: Get OpenOrbis
         run: |
-          git clone --depth 1 \
+          git clone --depth 1 --branch v0.5.4 \
             https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git \
-            OpenOrbis
+            "$HOME/OpenOrbis"
 
-      - name: Inspect OpenOrbis
-        run: |
-          echo "=== OpenOrbis bin ==="
-          ls -la OpenOrbis/bin
-          echo "=== OpenOrbis include ==="
-          ls -la OpenOrbis/include
-          echo "=== OpenOrbis lib ==="
-          ls -la OpenOrbis/lib
-          echo "=== OpenOrbis build ==="
-          ls -la OpenOrbis/build
+          echo "OpenOrbis:"
+          ls -la "$HOME/OpenOrbis"
 
-      - name: Configure CMake
+      - name: Configure
+        env:
+          OO_PS4_TOOLCHAIN: ${{ runner.tool_cache }}/OpenOrbis
         run: |
-          cmake -S . -B build -G Ninja
+          rm -rf build
+
+          cmake \
+            -S . \
+            -B build \
+            -G Ninja \
+            -DOO_PS4_TOOLCHAIN="$HOME/OpenOrbis"
 
       - name: Build
+        env:
+          OO_PS4_TOOLCHAIN: ${{ runner.tool_cache }}/OpenOrbis
         run: |
-          cmake --build build -v
-
-      - name: Upload build
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZokiiStoryMenu-build
-          path: build/
+          export OO_PS4_TOOLCHAIN="$HOME/OpenOrbis"
+          cmake --build build --verbose
